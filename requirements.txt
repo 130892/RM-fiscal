@@ -1,3 +1,8 @@
 streamlit
 pandas
 openpyxl
+PyMuPDF
+pytesseract
+plotly
+matplotlib
+fpdf
