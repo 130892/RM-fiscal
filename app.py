@@ -1,0 +1,58 @@
+import streamlit as st
+import pandas as pd
+import xml.etree.ElementTree as ET
+import io
+
+st.set_page_config(page_title="Leitor de NFe XML", layout="wide")
+st.title("📄 Leitor de NFe XML com Exportação para Excel")
+
+uploaded_files = st.file_uploader("Envie arquivos XML de NFe", type=["xml"], accept_multiple_files=True)
+
+def extrair_dados(xml_file):
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+    ns = {'nfe': 'http://www.portalfiscal.inf.br/nfe'}
+
+    emit = root.find('.//nfe:emit', ns)
+    dest = root.find('.//nfe:dest', ns)
+    ide = root.find('.//nfe:ide', ns)
+    produtos = root.findall('.//nfe:det', ns)
+
+    dados = []
+    for prod in produtos:
+        prod_info = prod.find('nfe:prod', ns)
+        dados.append({
+            'CNPJ Emitente': emit.find('nfe:CNPJ', ns).text if emit.find('nfe:CNPJ', ns) is not None else '',
+            'CNPJ Destinatário': dest.find('nfe:CNPJ', ns).text if dest.find('nfe:CNPJ', ns) is not None else '',
+            'Data de Emissão': ide.find('nfe:dhEmi', ns).text[:10] if ide.find('nfe:dhEmi', ns) is not None else '',
+            'Produto': prod_info.find('nfe:xProd', ns).text if prod_info.find('nfe:xProd', ns) is not None else '',
+            'CFOP': prod_info.find('nfe:CFOP', ns).text if prod_info.find('nfe:CFOP', ns) is not None else '',
+            'NCM': prod_info.find('nfe:NCM', ns).text if prod_info.find('nfe:NCM', ns) is not None else '',
+            'Valor Total': prod_info.find('nfe:vProd', ns).text if prod_info.find('nfe:vProd', ns) is not None else '',
+        })
+    return dados
+
+if uploaded_files:
+    todas_nf = []
+    for file in uploaded_files:
+        try:
+            dados = extrair_dados(file)
+            todas_nf.extend(dados)
+        except Exception as e:
+            st.error(f"Erro ao processar {file.name}: {e}")
+    
+    if todas_nf:
+        df = pd.DataFrame(todas_nf)
+        st.success(f"{len(uploaded_files)} arquivo(s) processado(s).")
+        st.dataframe(df)
+
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Notas')
+            writer.save()
+            st.download_button(
+                label="📥 Baixar Excel",
+                data=buffer.getvalue(),
+                file_name="relatorio_nf.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
