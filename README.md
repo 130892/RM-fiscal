@@ -1,25 +1,24 @@
 # RM-FISCAL
 
-Aplicação em Streamlit para leitura e validação de arquivos fiscais em Excel e PDF.
+Aplicação Streamlit para leitura de arquivos Excel e PDF com visualização dos dados fiscais.
 
-## Como executar
+## Funcionalidades
 
-1. Crie um ambiente virtual (opcional)
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate   # Windows
-```
+- Upload e leitura de planilhas Excel
+- Upload e extração de texto de arquivos PDF
+- Interface simples e intuitiva
 
-2. Instale as dependências
+## Requisitos
+
+- Python 3.8+
+- Streamlit
+- Pandas
+- pdfplumber
+- openpyxl
+
+## Executando o projeto
+
 ```bash
 pip install -r requirements.txt
-```
-
-3. Execute o app
-```bash
 streamlit run app.py
 ```
-
-## Estrutura esperada do Excel
-- Colunas obrigatórias: `Data`, `CNPJ`, `CFOP`, `NCM`, `Valor`
