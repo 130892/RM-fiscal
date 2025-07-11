@@ -1,1 +1,1 @@
-# Torna a pasta utils um módulo
+# Torna a pasta utils um pacote Python

@@ -1,10 +1,10 @@
 import pdfplumber
 
 def extrair_texto_pdf(arquivo_pdf):
-    texto_paginas = []
+    texto = []
     with pdfplumber.open(arquivo_pdf) as pdf:
-        for pagina in pdf.pages:
-            texto = pagina.extract_text()
-            if texto:
-                texto_paginas.append(texto)
-    return texto_paginas
+        for page in pdf.pages:
+            txt = page.extract_text()
+            if txt:
+                texto.append(txt)
+    return texto
